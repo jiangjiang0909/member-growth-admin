@@ -1,0 +1,2326 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>乘客成长体系 - UI原型</title>
+    <script type="text/javascript" src="https://webapi.amap.com/maps?v=1.4.15&key=0f7cdd3b0d7d99ae2b27fb554c923fa7"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background-color: #f5f7fa;
+            color: #333;
+            line-height: 1.6;
+        }
+        
+        /* 页面容器 */
+        .container {
+            max-width: 414px;
+            margin: 0 auto;
+            background-color: white;
+            min-height: 100vh;
+            position: relative;
+        }
+        
+        /* 头部 */
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 0 0 20px 20px;
+            position: relative;
+        }
+        
+        .header h1 {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 20px;
+        }
+        
+        /* 等级卡片 */
+        .level-card {
+            background-color: rgba(255, 255, 255, 0.2);
+            border-radius: 12px;
+            padding: 20px;
+            text-align: center;
+            backdrop-filter: blur(10px);
+            position: relative;
+        }
+        
+        .growth-rule-link {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            font-size: 12px;
+            color: rgba(255, 255, 255, 0.9);
+            cursor: pointer;
+            text-decoration: underline;
+        }
+        
+        .level-badge {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background-color: white;
+            margin: 0 auto 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+        
+        .level-name {
+            font-size: 20px;
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+        
+        .level-desc {
+            font-size: 12px;
+            opacity: 0.9;
+            margin-bottom: 15px;
+        }
+        
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background-color: rgba(255, 255, 255, 0.3);
+            border-radius: 4px;
+            overflow: hidden;
+            margin-bottom: 10px;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background-color: white;
+            border-radius: 4px;
+            transition: width 0.3s ease;
+        }
+        
+        .progress-text {
+            font-size: 12px;
+            opacity: 0.9;
+        }
+        
+        /* 标签栏 */
+        .tabs {
+            display: flex;
+            margin: 15px 10px;
+            background-color: #f5f7fa;
+            border-radius: 10px;
+            padding: 4px;
+        }
+        
+        .tab {
+            flex: 1;
+            padding: 10px;
+            text-align: center;
+            font-size: 14px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .tab.active {
+            background-color: white;
+            color: #667eea;
+            font-weight: 500;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+        }
+        
+        /* 内容区域 */
+        .content {
+            padding: 0 15px 80px;
+            display: none;
+        }
+        
+        .content.active {
+            display: block;
+        }
+        
+        /* 数据统计卡片 */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        
+        .stat-card {
+            background-color: #f5f7fa;
+            border-radius: 10px;
+            padding: 15px 10px;
+            text-align: center;
+        }
+        
+        .stat-value {
+            font-size: 18px;
+            font-weight: 600;
+            color: #667eea;
+        }
+        
+        .stat-label {
+            font-size: 11px;
+            color: #999;
+            margin-top: 3px;
+        }
+        
+        /* 任务卡片 */
+        .task-card {
+            background-color: #f5f7fa;
+            border-radius: 12px;
+            padding: 15px;
+            margin-bottom: 10px;
+        }
+        
+        .task-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+        
+        .task-title {
+            font-size: 14px;
+            font-weight: 500;
+        }
+        
+        .task-reward {
+            font-size: 12px;
+            color: #667eea;
+            font-weight: 500;
+        }
+        
+        .task-desc {
+            font-size: 12px;
+            color: #999;
+            margin-bottom: 12px;
+        }
+        
+        .task-progress {
+            display: flex;
+            align-items: center;
+        }
+        
+        .task-bar {
+            flex: 1;
+            height: 6px;
+            background-color: #e0e0e0;
+            border-radius: 3px;
+            overflow: hidden;
+            margin-right: 10px;
+        }
+        
+        .task-bar-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #667eea, #764ba2);
+            border-radius: 3px;
+        }
+        
+        .task-progress-text {
+            font-size: 12px;
+            color: #667eea;
+            font-weight: 500;
+        }
+        
+        .task-btn {
+            width: 100%;
+            padding: 10px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 500;
+            margin-top: 12px;
+            cursor: pointer;
+        }
+        
+        .task-btn:disabled {
+            background: #ccc;
+        }
+        
+        /* 成长值明细 */
+        .growth-tabs {
+            display: flex;
+            margin: 15px;
+            background-color: #f5f5f5;
+            border-radius: 20px;
+            padding: 4px;
+        }
+        
+        .growth-tab {
+            flex: 1;
+            text-align: center;
+            padding: 10px;
+            border-radius: 16px;
+            font-size: 14px;
+            color: #999;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .growth-tab.active {
+            background-color: white;
+            color: #667eea;
+            font-weight: 600;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+        }
+        
+        .growth-content {
+            display: none;
+        }
+        
+        .growth-content.active {
+            display: block;
+        }
+        
+        .growth-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 0;
+            border-bottom: 1px solid #f0f0f0;
+        }
+        
+        .growth-item:last-child {
+            border-bottom: none;
+        }
+        
+        .growth-info {
+            display: flex;
+            align-items: center;
+        }
+        
+        .growth-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            background-color: #f5f7fa;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            margin-right: 12px;
+        }
+        
+        .growth-desc {
+            font-size: 14px;
+            font-weight: 500;
+        }
+        
+        .growth-time {
+            font-size: 11px;
+            color: #999;
+            margin-top: 2px;
+        }
+        
+        .growth-value {
+            font-size: 16px;
+            font-weight: 600;
+        }
+        
+        .growth-value.income {
+            color: #27ae60;
+        }
+        
+        .growth-value.expense {
+            color: #e74c3c;
+        }
+        
+        .growth-value.expired {
+            color: #95a5a6;
+        }
+        
+        .growth-value.negative {
+            color: #e74c3c;
+        }
+        
+        /* 权益卡片 */
+        .benefit-card {
+            background-color: #f5f7fa;
+            border-radius: 12px;
+            padding: 15px;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+        }
+        
+        .benefit-icon {
+            width: 45px;
+            height: 45px;
+            border-radius: 12px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            margin-right: 15px;
+            color: white;
+        }
+        
+        .benefit-content {
+            flex: 1;
+        }
+        
+        .benefit-title {
+            font-size: 14px;
+            font-weight: 500;
+            margin-bottom: 3px;
+        }
+        
+        .benefit-desc {
+            font-size: 12px;
+            color: #999;
+        }
+        
+        .benefit-status {
+            font-size: 11px;
+            color: #27ae60;
+            font-weight: 500;
+        }
+        
+        /* 底部导航 */
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            max-width: 414px;
+            margin: 0 auto;
+            background-color: white;
+            display: flex;
+            justify-content: space-around;
+            padding: 10px 0;
+            box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.05);
+        }
+        
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            cursor: pointer;
+            color: #999;
+            transition: color 0.3s;
+        }
+        
+        .nav-item.active {
+            color: #667eea;
+        }
+        
+        .nav-icon {
+            font-size: 20px;
+            margin-bottom: 3px;
+        }
+        
+        .nav-label {
+            font-size: 11px;
+        }
+        
+        /* 等级规则弹窗 */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        
+        .modal-overlay.active {
+            display: flex;
+        }
+        
+        .modal-content {
+            background-color: white;
+            border-radius: 16px;
+            width: 100%;
+            max-width: 350px;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+        
+        .modal-header {
+            padding: 20px;
+            border-bottom: 1px solid #f0f0f0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .modal-title {
+            font-size: 16px;
+            font-weight: 600;
+        }
+        
+        .modal-close {
+            font-size: 20px;
+            cursor: pointer;
+            color: #999;
+        }
+        
+        .modal-body {
+            padding: 20px;
+        }
+        
+        .level-rule-item {
+            margin-bottom: 20px;
+        }
+        
+        .level-rule-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        
+        .level-rule-badge {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background-color: #f5f7fa;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            margin-right: 10px;
+        }
+        
+        .level-rule-name {
+            font-size: 14px;
+            font-weight: 600;
+        }
+        
+        .level-rule-desc {
+            font-size: 12px;
+            color: #999;
+            margin-bottom: 8px;
+        }
+        
+        .level-rule-list {
+            font-size: 12px;
+            color: #666;
+            padding-left: 20px;
+        }
+        
+        .level-rule-list li {
+            margin-bottom: 5px;
+        }
+        
+        .retention-rule, .demotion-rule {
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 1px solid #f0f0f0;
+        }
+        
+        .retention-title, .demotion-title {
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 10px;
+            color: #333;
+        }
+        
+        .retention-list, .demotion-list {
+            font-size: 12px;
+            color: #666;
+            padding-left: 20px;
+        }
+        
+        .retention-list li, .demotion-list li {
+            margin-bottom: 8px;
+        }
+        
+        /* 我的页面样式 */
+        .user-info-section {
+            display: flex;
+            align-items: center;
+            padding: 20px 15px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 0 0 20px 20px;
+        }
+        
+        .user-avatar {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background-color: rgba(255, 255, 255, 0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 15px;
+        }
+        
+        .avatar-icon {
+            font-size: 28px;
+        }
+        
+        .user-details {
+            flex: 1;
+        }
+        
+        .user-phone {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+        
+        .user-signature {
+            font-size: 12px;
+            opacity: 0.8;
+        }
+        
+        .arrow-right {
+            font-size: 24px;
+            opacity: 0.6;
+        }
+        
+        .quick-actions {
+            display: flex;
+            gap: 12px;
+            padding: 15px;
+        }
+        
+        .quick-action-card {
+            flex: 1;
+            background-color: #f5f7fa;
+            border-radius: 12px;
+            padding: 15px;
+            text-align: center;
+        }
+        
+        .quick-icon {
+            font-size: 28px;
+            margin-bottom: 8px;
+        }
+        
+        .quick-title {
+            font-size: 14px;
+            font-weight: 500;
+            margin-bottom: 3px;
+        }
+        
+        .quick-subtitle {
+            font-size: 11px;
+            color: #999;
+        }
+        
+        .menu-list {
+            margin: 0 15px;
+            background-color: white;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+        }
+        
+        .menu-item {
+            display: flex;
+            align-items: center;
+            padding: 15px;
+            border-bottom: 1px solid #f0f0f0;
+        }
+        
+        .menu-item:last-child {
+            border-bottom: none;
+        }
+        
+        .menu-icon {
+            font-size: 18px;
+            margin-right: 12px;
+        }
+        
+        .menu-text {
+            flex: 1;
+            font-size: 14px;
+            color: #333;
+        }
+        
+        .menu-arrow {
+            font-size: 18px;
+            color: #ccc;
+        }
+        
+        /* 首页样式 */
+        .home-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px;
+            background-color: white;
+        }
+        
+        .logo-section {
+            display: flex;
+            align-items: center;
+        }
+        
+        .logo {
+            font-size: 24px;
+            margin-right: 8px;
+        }
+        
+        .app-name {
+            font-size: 18px;
+            font-weight: 600;
+            color: #333;
+        }
+        
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .action-btn {
+            font-size: 14px;
+            color: #667eea;
+            padding: 6px 12px;
+            background-color: rgba(102, 126, 234, 0.1);
+            border-radius: 15px;
+        }
+        
+        .action-icon {
+            font-size: 18px;
+            color: #666;
+            cursor: pointer;
+        }
+        
+        .action-icon.close {
+            font-size: 24px;
+            color: #999;
+        }
+        
+        .map-area {
+            height: 650px;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        #amap-container {
+            width: 100%;
+            height: 100%;
+        }
+        
+        .destination-panel {
+            background-color: white;
+            position: absolute;
+            bottom: 15px;
+            left: 15px;
+            right: 15px;
+            border-radius: 12px;
+            padding: 12px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+            z-index: 10;
+        }
+        
+        .location-item {
+            display: flex;
+            align-items: center;
+            padding: 10px 0;
+            border-bottom: 1px solid #f0f0f0;
+        }
+        
+        .location-item:last-child {
+            border-bottom: none;
+        }
+        
+        .location-dot {
+            font-size: 16px;
+            margin-right: 12px;
+        }
+        
+        .location-dot.origin {
+            color: #27ae60;
+        }
+        
+        .location-dot.destination {
+            color: #e74c3c;
+        }
+        
+        .location-info {
+            flex: 1;
+        }
+        
+        .location-label {
+            font-size: 14px;
+            color: #333;
+        }
+        
+        .location-arrow {
+            font-size: 18px;
+            color: #ccc;
+        }
+        
+        .function-buttons {
+            display: flex;
+            justify-content: space-around;
+            background-color: white;
+            margin: 0 15px;
+            padding: 15px;
+            border-radius: 12px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+        }
+        
+        .function-btn {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            flex: 1;
+        }
+        
+        .function-icon {
+            font-size: 24px;
+            margin-bottom: 8px;
+        }
+        
+        .function-text {
+            font-size: 14px;
+            color: #666;
+        }
+        
+        .divider {
+            width: 1px;
+            background-color: #f0f0f0;
+        }
+        
+        /* 首页引导弹窗样式 */
+        .guide-modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0, 0, 0, 0.6);
+            z-index: 2000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        
+        .guide-modal {
+            background-color: white;
+            border-radius: 20px;
+            width: 100%;
+            max-width: 320px;
+            overflow: hidden;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+        }
+        
+        .guide-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .guide-title {
+            font-size: 18px;
+            font-weight: 600;
+        }
+        
+        .guide-close {
+            font-size: 24px;
+            opacity: 0.8;
+            cursor: pointer;
+        }
+        
+        .guide-content {
+            padding: 20px;
+        }
+        
+        .guide-step {
+            display: flex;
+            align-items: center;
+            padding: 15px 0;
+            border-bottom: 1px solid #f0f0f0;
+        }
+        
+        .guide-step:last-child {
+            border-bottom: none;
+        }
+        
+        .guide-step-icon {
+            width: 45px;
+            height: 45px;
+            border-radius: 12px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 22px;
+            margin-right: 15px;
+        }
+        
+        .guide-step-info {
+            flex: 1;
+        }
+        
+        .guide-step-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 4px;
+        }
+        
+        .guide-step-desc {
+            font-size: 12px;
+            color: #999;
+        }
+        
+        .guide-footer {
+            padding: 15px 20px 25px;
+        }
+        
+        .guide-btn {
+            width: 100%;
+            padding: 14px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 30px;
+            font-size: 15px;
+            font-weight: 500;
+            cursor: pointer;
+        }
+        
+        /* 卡券页面样式 */
+        .coupon-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px;
+            background-color: white;
+        }
+        
+        .coupon-tabs {
+            display: flex;
+            padding: 10px 15px;
+            background-color: white;
+            border-bottom: 1px solid #f0f0f0;
+        }
+        
+        .coupon-tab {
+            flex: 1;
+            text-align: center;
+            padding: 8px 0;
+            font-size: 14px;
+            color: #666;
+            border-bottom: 2px solid transparent;
+            cursor: pointer;
+        }
+        
+        .coupon-tab.active {
+            color: #667eea;
+            border-bottom-color: #667eea;
+            font-weight: 500;
+        }
+        
+        .coupon-list {
+            padding: 15px;
+            background-color: #f5f7fa;
+            padding-bottom: 120px;
+        }
+        
+        .coupon-card {
+            background-color: white;
+            border-radius: 12px;
+            padding: 15px;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .coupon-card.used,
+        .coupon-card.started {
+            opacity: 0.6;
+        }
+        
+        .coupon-left {
+            width: 80px;
+            height: 70px;
+            background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
+            border-radius: 10px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            margin-right: 15px;
+        }
+        
+        .coupon-left.discount-left {
+            background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
+        }
+        
+        .coupon-amount {
+            font-size: 28px;
+            font-weight: 700;
+            line-height: 1;
+        }
+        
+        .coupon-unit {
+            font-size: 12px;
+            margin-top: 4px;
+        }
+        
+        .coupon-right {
+            flex: 1;
+        }
+        
+        .coupon-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 4px;
+        }
+        
+        .coupon-desc {
+            font-size: 12px;
+            color: #666;
+            margin-bottom: 4px;
+        }
+        
+        .coupon-date {
+            font-size: 11px;
+            color: #999;
+        }
+        
+        .coupon-btn {
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 500;
+            cursor: pointer;
+        }
+        
+        .coupon-btn.primary {
+            background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
+            color: white;
+        }
+        
+        .coupon-btn.secondary {
+            background: linear-gradient(135deg, #27ae60 0%, #2ecc71 100%);
+            color: white;
+        }
+        
+        .coupon-btn.disabled {
+            background-color: #ccc;
+            color: #999;
+        }
+        
+        .coupon-card.activity {
+            background: linear-gradient(135deg, rgba(46, 204, 113, 0.1) 0%, rgba(39, 174, 96, 0.05) 100%);
+            border: 1px solid rgba(46, 204, 113, 0.3);
+        }
+        
+        .coupon-badge {
+            position: absolute;
+            top: 0;
+            left: 0;
+            background: linear-gradient(135deg, #27ae60 0%, #2ecc71 100%);
+            color: white;
+            padding: 4px 12px;
+            font-size: 11px;
+            border-radius: 0 0 10px 0;
+        }
+        
+        .coupon-content {
+            flex: 1;
+        }
+        
+        .started-badge {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            border: 2px dashed #999;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            color: #999;
+            background-color: rgba(255, 255, 255, 0.8);
+        }
+        
+        .coupon-bottom-buttons {
+            position: fixed;
+            bottom: 70px;
+            left: 0;
+            right: 0;
+            max-width: 414px;
+            margin: 0 auto;
+            display: flex;
+            padding: 15px;
+            background-color: white;
+            border-top: 1px solid #f0f0f0;
+        }
+        
+        .bottom-btn {
+            flex: 1;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            background-color: white;
+            color: #666;
+            font-size: 14px;
+            cursor: pointer;
+            margin: 0 5px;
+        }
+        
+        /* 我的页面成长值卡片 */
+        .profile-growth-card {
+            margin: 15px;
+            padding: 15px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 12px;
+            color: white;
+            position: relative;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+        }
+        
+        .profile-growth-main {
+            flex: 1;
+        }
+        
+        .profile-growth-name-row {
+            display: flex;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+        
+        .profile-growth-name {
+            font-size: 16px;
+            font-weight: 600;
+        }
+        
+        .profile-growth-badge {
+            font-size: 16px;
+            margin-left: 8px;
+        }
+        
+        .profile-growth-progress {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        
+        .profile-progress-text {
+            font-size: 16px;
+            font-weight: 600;
+            margin-right: 8px;
+        }
+        
+        .profile-growth-desc {
+            font-size: 12px;
+            opacity: 0.85;
+        }
+        
+        .profile-progress-bar {
+            width: 100%;
+            height: 4px;
+            background-color: rgba(255, 255, 255, 0.3);
+            border-radius: 2px;
+            overflow: hidden;
+        }
+        
+        .profile-progress-fill {
+            height: 100%;
+            background-color: white;
+            border-radius: 2px;
+            transition: width 0.3s ease;
+        }
+        
+        .profile-progress-text {
+            font-size: 12px;
+            text-align: center;
+            opacity: 0.9;
+        }
+        
+        .profile-growth-arrow {
+            font-size: 20px;
+            opacity: 0.7;
+            margin-left: 10px;
+        }
+        
+        .profile-level-card {
+            display: flex;
+            align-items: center;
+            margin: 15px;
+            padding: 15px;
+            background: linear-gradient(135deg, #f39c12 0%, #f1c40f 100%);
+            border-radius: 12px;
+            color: white;
+        }
+        
+        .profile-level-badge {
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            background-color: rgba(255, 255, 255, 0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            margin-right: 12px;
+        }
+        
+        .profile-level-info {
+            flex: 1;
+        }
+        
+        .profile-level-name {
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 3px;
+        }
+        
+        .profile-level-progress {
+            font-size: 12px;
+            opacity: 0.85;
+        }
+        
+        .profile-level-arrow {
+            font-size: 24px;
+            opacity: 0.7;
+            cursor: pointer;
+        }
+        
+        /* 渐变背景等级色 */
+        .level-diamond {
+            background: linear-gradient(135deg, #f39c12 0%, #e74c3c 100%);
+            color: white;
+        }
+        
+        .level-gold {
+            background: linear-gradient(135deg, #f39c12 0%, #f1c40f 100%);
+            color: white;
+        }
+        
+        .level-silver {
+            background: linear-gradient(135deg, #95a5a6 0%, #bdc3c7 100%);
+            color: white;
+        }
+        
+        .level-newbie {
+            background: linear-gradient(135deg, #1abc9c 0%, #16a085 100%);
+            color: white;
+        }
+        
+        /* 高级任务样式 */
+        .premium-task {
+            border: 1px solid rgba(243, 156, 18, 0.3);
+            background: linear-gradient(135deg, rgba(243, 156, 18, 0.05) 0%, rgba(241, 196, 15, 0.05) 100%);
+        }
+        
+        .premium-fill {
+            background: linear-gradient(90deg, #f39c12, #f1c40f) !important;
+        }
+        
+        /* 滑动容器样式 */
+        .level-slider-container {
+            overflow: hidden;
+            position: relative;
+        }
+        
+        .level-slider {
+            display: flex;
+            transition: transform 0.3s ease;
+            touch-action: pan-x;
+        }
+        
+        .level-slider .level-card {
+            flex-shrink: 0;
+            width: 100%;
+            margin-right: 0;
+        }
+        
+        .level-indicators {
+            display: flex;
+            justify-content: center;
+            gap: 8px;
+            margin-top: 15px;
+        }
+        
+        .indicator {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background-color: rgba(255, 255, 255, 0.4);
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .indicator.active {
+            width: 20px;
+            border-radius: 4px;
+            background-color: white;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- 头部 -->
+        <div class="header" id="header">
+            <h1>我的成长</h1>
+            <div class="level-slider-container">
+                <div class="level-slider">
+                    <div class="level-card">
+                        <span class="growth-rule-link" onclick="openGrowthRuleModal()">成长值规则</span>
+                        <div class="level-badge level-newbie">🌱</div>
+                        <div class="level-name">萌新会员</div>
+                        <div class="level-desc">距离白银会员还需 100 成长值</div>
+                        <div class="progress-bar">
+                            <div class="progress-fill" style="width: 0%;"></div>
+                        </div>
+                        <div class="progress-text">0 / 100 成长值</div>
+                    </div>
+                    <div class="level-card">
+                        <span class="growth-rule-link" onclick="openGrowthRuleModal()">成长值规则</span>
+                        <div class="level-badge level-silver">🥈</div>
+                        <div class="level-name">白银会员</div>
+                        <div class="level-desc">距离黄金会员还需 400 成长值</div>
+                        <div class="progress-bar">
+                            <div class="progress-fill" style="width: 20%;"></div>
+                        </div>
+                        <div class="progress-text">100 / 500 成长值</div>
+                    </div>
+                    <div class="level-card active-level">
+                        <span class="growth-rule-link" onclick="openGrowthRuleModal()">成长值规则</span>
+                        <div class="level-badge level-gold">👑</div>
+                        <div class="level-name">黄金会员</div>
+                        <div class="level-desc">距离钻石会员还需 1,500 成长值</div>
+                        <div class="progress-bar">
+                            <div class="progress-fill" style="width: 25%;"></div>
+                        </div>
+                        <div class="progress-text">500 / 2000 成长值</div>
+                    </div>
+                    <div class="level-card">
+                        <span class="growth-rule-link" onclick="openGrowthRuleModal()">成长值规则</span>
+                        <div class="level-badge level-diamond">💎</div>
+                        <div class="level-name">钻石会员</div>
+                        <div class="level-desc">平台核心会员，尊享专属特权</div>
+                        <div class="progress-bar">
+                            <div class="progress-fill" style="width: 100%;"></div>
+                        </div>
+                        <div class="progress-text">2001+ 成长值</div>
+                    </div>
+                </div>
+                <div class="level-indicators">
+                    <div class="indicator active" onclick="slideTo(0)"></div>
+                    <div class="indicator" onclick="slideTo(1)"></div>
+                    <div class="indicator" onclick="slideTo(2)"></div>
+                    <div class="indicator" onclick="slideTo(3)"></div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 标签栏 -->
+        <div class="tabs" id="tabs">
+            <div class="tab active" onclick="switchTab('tasks')">任务中心</div>
+            <div class="tab" onclick="switchTab('growth')">成长值明细</div>
+        </div>
+        
+        <!-- 任务中心 -->
+        <div class="content active" id="tasks">
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-value">500</div>
+                    <div class="stat-label">当前成长值</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value">1,500</div>
+                    <div class="stat-label">本月获取</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value">3</div>
+                    <div class="stat-label">待完成任务</div>
+                </div>
+            </div>
+            
+            <div style="margin-bottom: 15px; display: flex; justify-content: space-between; align-items: center;">
+                <span style="font-size: 14px; font-weight: 600;">新手任务</span>
+                <span style="font-size: 12px; color: #999;">进行中</span>
+            </div>
+            
+            <div class="task-card">
+                <div class="task-header">
+                    <span class="task-title">完成首单打车</span>
+                    <span class="task-reward">+50成长值</span>
+                </div>
+                <div class="task-desc">完成您的第一次打车，开启出行之旅</div>
+                <div class="task-progress">
+                    <div class="task-bar">
+                        <div class="task-bar-fill" style="width: 0%;"></div>
+                    </div>
+                    <span class="task-progress-text">0/1</span>
+                </div>
+                <button class="task-btn">立即去完成</button>
+            </div>
+            
+            <div class="task-card">
+                <div class="task-header">
+                    <span class="task-title">完成首单评价</span>
+                    <span class="task-reward">+15成长值</span>
+                </div>
+                <div class="task-desc">对您的第一笔订单进行评价，帮助我们改进服务</div>
+                <div class="task-progress">
+                    <div class="task-bar">
+                        <div class="task-bar-fill" style="width: 0%;"></div>
+                    </div>
+                    <span class="task-progress-text">0/1</span>
+                </div>
+                <button class="task-btn">立即评价</button>
+            </div>
+            
+            <div class="task-card">
+                <div class="task-header">
+                    <span class="task-title">完善个人资料</span>
+                    <span class="task-reward">+20成长值</span>
+                </div>
+                <div class="task-desc">填写完整的个人信息，提升账号安全等级</div>
+                <div class="task-progress">
+                    <div class="task-bar">
+                        <div class="task-bar-fill" style="width: 60%;"></div>
+                    </div>
+                    <span class="task-progress-text">3/5</span>
+                </div>
+                <button class="task-btn">立即完善</button>
+            </div>
+            
+            <div class="task-card">
+                <div class="task-header">
+                    <span class="task-title">添加紧急联系人</span>
+                    <span class="task-reward">+25成长值</span>
+                </div>
+                <div class="task-desc">添加紧急联系人，出行更安心</div>
+                <div class="task-progress">
+                    <div class="task-bar">
+                        <div class="task-bar-fill" style="width: 0%;"></div>
+                    </div>
+                    <span class="task-progress-text">0/1</span>
+                </div>
+                <button class="task-btn">立即添加</button>
+            </div>
+            
+            <div class="task-card">
+                <div class="task-header">
+                    <span class="task-title">分享行程给好友</span>
+                    <span class="task-reward">+30成长值</span>
+                </div>
+                <div class="task-desc">分享您的出行行程，邀请好友一起出行</div>
+                <div class="task-progress">
+                    <div class="task-bar">
+                        <div class="task-bar-fill" style="width: 50%;"></div>
+                    </div>
+                    <span class="task-progress-text">1/2</span>
+                </div>
+                <button class="task-btn">立即分享</button>
+            </div>
+            
+            <div style="margin-bottom: 15px; margin-top: 20px; display: flex; justify-content: space-between; align-items: center;">
+                <span style="font-size: 14px; font-weight: 600;">日常任务</span>
+                <span style="font-size: 12px; color: #999;">每日更新</span>
+            </div>
+            
+            <div class="task-card">
+                <div class="task-header">
+                    <span class="task-title">完成1单日常订单</span>
+                    <span class="task-reward">+20成长值</span>
+                </div>
+                <div class="task-desc">每天完成订单即可获得奖励</div>
+                <div class="task-progress">
+                    <div class="task-bar">
+                        <div class="task-bar-fill" style="width: 60%;"></div>
+                    </div>
+                    <span class="task-progress-text">3/5</span>
+                </div>
+                <button class="task-btn">立即去打车</button>
+            </div>
+            
+            <div class="task-card">
+                <div class="task-header">
+                    <span class="task-title">完成1单打车评价</span>
+                    <span class="task-reward">+10成长值</span>
+                </div>
+                <div class="task-desc">对已完成的订单进行评价，分享您的出行体验</div>
+                <div class="task-progress">
+                    <div class="task-bar">
+                        <div class="task-bar-fill" style="width: 100%;"></div>
+                    </div>
+                    <span class="task-progress-text">1/1</span>
+                </div>
+                <button class="task-btn" disabled>已完成</button>
+            </div>
+            
+            <div style="margin-bottom: 15px; margin-top: 20px; display: flex; justify-content: space-between; align-items: center;">
+                <span style="font-size: 14px; font-weight: 600;">进阶任务</span>
+                <span style="font-size: 12px; color: #999;">本月剩余 7 天</span>
+            </div>
+            
+            <div class="task-card">
+                <div class="task-header">
+                    <span class="task-title">月完成8单及以上</span>
+                    <span class="task-reward">+100成长值</span>
+                </div>
+                <div class="task-desc">本月累计完成8单订单</div>
+                <div class="task-progress">
+                    <div class="task-bar">
+                        <div class="task-bar-fill" style="width: 75%;"></div>
+                    </div>
+                    <span class="task-progress-text">6/8</span>
+                </div>
+                <button class="task-btn">继续加油</button>
+            </div>
+            
+            <div id="premiumTasks" style="display: block;">
+                <div style="margin-bottom: 15px; margin-top: 20px; display: flex; justify-content: space-between; align-items: center;">
+                    <span style="font-size: 14px; font-weight: 600;">高级任务</span>
+                    <span style="font-size: 12px; color: #999;" id="quarterDaysRemaining">本季度剩余 45 天</span>
+                </div>
+                
+                <div class="task-card premium-task">
+                    <div class="task-header">
+                        <span class="task-title">季度完成30单及以上</span>
+                        <span class="task-reward">+300成长值</span>
+                    </div>
+                    <div class="task-desc">本季度累计完成30单订单，解锁专属特权</div>
+                    <div class="task-progress">
+                        <div class="task-bar">
+                            <div class="task-bar-fill premium-fill" style="width: 50%;"></div>
+                        </div>
+                        <span class="task-progress-text">15/30</span>
+                    </div>
+                    <button class="task-btn">立即参与</button>
+                </div>
+                
+                <div class="task-card premium-task">
+                    <div class="task-header">
+                        <span class="task-title">节假日期间完成5单</span>
+                        <span class="task-reward">+200成长值</span>
+                    </div>
+                    <div class="task-desc">春节、国庆等节假日期间完成订单</div>
+                    <div class="task-progress">
+                        <div class="task-bar">
+                            <div class="task-bar-fill premium-fill" style="width: 60%;"></div>
+                        </div>
+                        <span class="task-progress-text">3/5</span>
+                    </div>
+                    <button class="task-btn">查看日历</button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 成长值明细 -->
+        <div class="content" id="growth">
+            <!-- 成长值明细TAB -->
+            <div class="growth-tabs">
+                <div class="growth-tab active" onclick="switchGrowthTab('income')">收入</div>
+                <div class="growth-tab" onclick="switchGrowthTab('expense')">支出</div>
+                <div class="growth-tab" onclick="switchGrowthTab('expired')">过期</div>
+            </div>
+            
+            <!-- 收入明细 -->
+            <div class="growth-content active" id="income">
+                <div class="growth-item">
+                    <div class="growth-info">
+                        <div class="growth-icon">🛒</div>
+                        <div>
+                            <div class="growth-desc">订单消费</div>
+                            <div class="growth-time">2026-05-06 14:30</div>
+                        </div>
+                    </div>
+                    <div class="growth-value income">+35</div>
+                </div>
+                
+                <div class="growth-item">
+                    <div class="growth-info">
+                        <div class="growth-icon">⭐</div>
+                        <div>
+                            <div class="growth-desc">订单评价奖励</div>
+                            <div class="growth-time">2026-05-06 12:15</div>
+                        </div>
+                    </div>
+                    <div class="growth-value income">+20</div>
+                </div>
+                
+                <div class="growth-item">
+                    <div class="growth-info">
+                        <div class="growth-icon">🌤️</div>
+                        <div>
+                            <div class="growth-desc">非高峰时段奖励</div>
+                            <div class="growth-time">2026-05-05 15:45</div>
+                        </div>
+                    </div>
+                    <div class="growth-value income">+10</div>
+                </div>
+                
+                <div class="growth-item">
+                    <div class="growth-info">
+                        <div class="growth-icon">🛒</div>
+                        <div>
+                            <div class="growth-desc">订单消费</div>
+                            <div class="growth-time">2026-05-05 09:20</div>
+                        </div>
+                    </div>
+                    <div class="growth-value income">+45</div>
+                </div>
+                
+                <div class="growth-item">
+                    <div class="growth-info">
+                        <div class="growth-icon">👥</div>
+                        <div>
+                            <div class="growth-desc">分享奖励</div>
+                            <div class="growth-time">2026-05-04 20:10</div>
+                        </div>
+                    </div>
+                    <div class="growth-value income">+30</div>
+                </div>
+            </div>
+            
+            <!-- 支出明细 -->
+            <div class="growth-content" id="expense">
+                <div class="growth-item">
+                    <div class="growth-info">
+                        <div class="growth-icon">🎁</div>
+                        <div>
+                            <div class="growth-desc">兑换优惠券</div>
+                            <div class="growth-time">2026-05-03 16:30</div>
+                        </div>
+                    </div>
+                    <div class="growth-value expense">-100</div>
+                </div>
+                
+                <div class="growth-item">
+                    <div class="growth-info">
+                        <div class="growth-icon">🚫</div>
+                        <div>
+                            <div class="growth-desc">订单取消扣除</div>
+                            <div class="growth-time">2026-04-28 10:20</div>
+                        </div>
+                    </div>
+                    <div class="growth-value expense">-20</div>
+                </div>
+                
+                <div class="growth-item">
+                    <div class="growth-info">
+                        <div class="growth-icon">🎁</div>
+                        <div>
+                            <div class="growth-desc">兑换会员礼品</div>
+                            <div class="growth-time">2026-04-20 14:15</div>
+                        </div>
+                    </div>
+                    <div class="growth-value expense">-50</div>
+                </div>
+            </div>
+            
+            <!-- 过期明细 -->
+            <div class="growth-content" id="expired">
+                <div class="growth-item">
+                    <div class="growth-info">
+                        <div class="growth-icon">⏰</div>
+                        <div>
+                            <div class="growth-desc">月度成长值过期</div>
+                            <div class="growth-time">2026-05-01 00:00</div>
+                        </div>
+                    </div>
+                    <div class="growth-value expired">-35</div>
+                </div>
+                
+                <div class="growth-item">
+                    <div class="growth-info">
+                        <div class="growth-icon">⏰</div>
+                        <div>
+                            <div class="growth-desc">季度成长值过期</div>
+                            <div class="growth-time">2026-04-01 00:00</div>
+                        </div>
+                    </div>
+                    <div class="growth-value expired">-80</div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 首页引导弹窗 -->
+        <div class="guide-modal-overlay" id="guideModal">
+            <div class="guide-modal">
+                <div class="guide-header">
+                    <span class="guide-title">🎉 欢迎使用丰速行</span>
+                    <span class="guide-close" onclick="closeGuideModal()">×</span>
+                </div>
+                <div class="guide-content">
+                    <div class="guide-step">
+                        <div class="guide-step-icon">🚗</div>
+                        <div class="guide-step-info">
+                            <div class="guide-step-title">一键叫车</div>
+                            <div class="guide-step-desc">快速呼叫附近车辆，出行更便捷</div>
+                        </div>
+                    </div>
+                    <div class="guide-step">
+                        <div class="guide-step-icon">💰</div>
+                        <div class="guide-step-info">
+                            <div class="guide-step-title">优惠多多</div>
+                            <div class="guide-step-desc">丰富优惠券，打车更省钱</div>
+                        </div>
+                    </div>
+                    <div class="guide-step">
+                        <div class="guide-step-icon">🎁</div>
+                        <div class="guide-step-info">
+                            <div class="guide-step-title">会员权益</div>
+                            <div class="guide-step-desc">成长值体系，尊享专属特权</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="guide-footer">
+                    <button class="guide-btn" onclick="closeGuideModal()">立即体验</button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 首页 -->
+        <div class="content" id="home">
+            <!-- 顶部导航 -->
+            <div class="home-header">
+                <div class="logo-section">
+                    <div class="logo">🚕</div>
+                    <span class="app-name">丰速行</span>
+                </div>
+                <div class="header-actions">
+                    <span class="action-btn">反馈</span>
+                    <span class="action-icon">↗</span>
+                    <span class="action-icon close">×</span>
+                </div>
+            </div>
+            
+            <!-- 地图区域 -->
+            <div class="map-area">
+                <div id="amap-container"></div>
+                
+                <!-- 目的地输入区域（悬浮在地图上） -->
+                <div class="destination-panel">
+                    <div class="location-item">
+                        <div class="location-dot origin">●</div>
+                        <div class="location-info">
+                            <div class="location-label">花溪国际中心D座（西门）</div>
+                        </div>
+                        <span class="location-arrow">›</span>
+                    </div>
+                    <div class="location-item">
+                        <div class="location-dot destination">●</div>
+                        <div class="location-info">
+                            <div class="location-label">你想去哪里？</div>
+                        </div>
+                        <span class="location-arrow">›</span>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 功能按钮 -->
+            <div class="function-buttons">
+                <div class="function-btn">
+                    <div class="function-icon">🕐</div>
+                    <span class="function-text">预约</span>
+                </div>
+                <div class="divider"></div>
+                <div class="function-btn">
+                    <div class="function-icon">👥</div>
+                    <span class="function-text">帮人叫车</span>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 卡券页面 -->
+        <div class="content" id="coupon">
+            <!-- 顶部导航 -->
+            <div class="coupon-header">
+                <div class="logo-section">
+                    <div class="logo">🚕</div>
+                    <span class="app-name">丰速行</span>
+                </div>
+                <div class="header-actions">
+                    <span class="action-btn">反馈</span>
+                    <span class="action-icon">↗</span>
+                    <span class="action-icon close">×</span>
+                </div>
+            </div>
+            
+            <!-- 标签栏 -->
+            <div class="coupon-tabs">
+                <div class="coupon-tab active">全部</div>
+                <div class="coupon-tab">满减券</div>
+                <div class="coupon-tab">折扣券</div>
+                <div class="coupon-tab">立减券</div>
+                <div class="coupon-tab">组合券</div>
+            </div>
+            
+            <!-- 卡券列表 -->
+            <div class="coupon-list">
+                <!-- 满减券1 - 可用 -->
+                <div class="coupon-card available">
+                    <div class="coupon-left">
+                        <div class="coupon-amount">10</div>
+                        <div class="coupon-unit">元</div>
+                    </div>
+                    <div class="coupon-right">
+                        <div class="coupon-title">满减券</div>
+                        <div class="coupon-desc">订单满xxx可用</div>
+                        <div class="coupon-date">2025.07.28-2025.09.28 领取后三天内可用</div>
+                    </div>
+                    <div class="coupon-btn primary">立即领取</div>
+                </div>
+                
+                <!-- 满减券2 - 已使用 -->
+                <div class="coupon-card used">
+                    <div class="coupon-left">
+                        <div class="coupon-amount">10</div>
+                        <div class="coupon-unit">元</div>
+                    </div>
+                    <div class="coupon-right">
+                        <div class="coupon-title">满减券</div>
+                        <div class="coupon-desc">订单满xxx可用</div>
+                        <div class="coupon-date">2025.07.28-2025.09.28</div>
+                    </div>
+                    <div class="coupon-btn disabled">已使用</div>
+                </div>
+                
+                <!-- 满减券3 - 可用 -->
+                <div class="coupon-card available">
+                    <div class="coupon-left">
+                        <div class="coupon-amount">10</div>
+                        <div class="coupon-unit">元</div>
+                    </div>
+                    <div class="coupon-right">
+                        <div class="coupon-title">满减券</div>
+                        <div class="coupon-desc">订单满xxx可用</div>
+                        <div class="coupon-date">2025.07.28-2025.09.28</div>
+                    </div>
+                    <div class="coupon-btn primary">立即领取</div>
+                </div>
+                
+                <!-- 618活动券1 -->
+                <div class="coupon-card activity">
+                    <div class="coupon-badge">618活动</div>
+                    <div class="coupon-content">
+                        <div class="coupon-title">618福利活动</div>
+                        <div class="coupon-desc">专属福利打车券包</div>
+                        <div class="coupon-date">2025.07.28-2025.09.28</div>
+                    </div>
+                    <div class="coupon-btn secondary">一键领取</div>
+                </div>
+                
+                <!-- 折扣券 -->
+                <div class="coupon-card discount">
+                    <div class="coupon-left discount-left">
+                        <div class="coupon-amount">5</div>
+                        <div class="coupon-unit">折</div>
+                    </div>
+                    <div class="coupon-right">
+                        <div class="coupon-title">折扣券</div>
+                        <div class="coupon-desc">订单满xxx可用/无门槛</div>
+                        <div class="coupon-date">2025.07.28-2025.09.28 领取后三天内可用</div>
+                    </div>
+                    <div class="coupon-btn primary">立即领取</div>
+                </div>
+            </div>
+            
+            <!-- 底部按钮 -->
+            <div class="coupon-bottom-buttons">
+                <button class="bottom-btn">购买记录</button>
+                <button class="bottom-btn">历史优惠券</button>
+            </div>
+        </div>
+        
+        <!-- 我的页面 -->
+        <div class="content" id="profile">
+            <!-- 用户信息区域 -->
+            <div class="user-info-section">
+                <div class="user-avatar">
+                    <div class="avatar-icon">👤</div>
+                </div>
+                <div class="user-details">
+                    <div class="user-phone">159****3765</div>
+                    <div class="user-signature">丰速必达，一路畅行</div>
+                </div>
+                <div class="arrow-right">›</div>
+            </div>
+            
+            <!-- 成长值卡片 -->
+            <div class="profile-growth-card" onclick="showGrowthDetail()">
+                <div class="profile-growth-main">
+                    <div class="profile-growth-name-row">
+                        <span class="profile-growth-name">黄金会员</span>
+                        <span class="profile-growth-badge">👑</span>
+                    </div>
+                    <div class="profile-growth-progress">
+                        <span class="profile-progress-text">500/2000</span>
+                        <span class="profile-growth-desc">还需1,500成长值可升级钻石会员</span>
+                    </div>
+                    <div class="profile-progress-bar">
+                        <div class="profile-progress-fill" style="width: 25%;"></div>
+                    </div>
+                </div>
+                <div class="profile-growth-arrow">›</div>
+            </div>
+            
+            <!-- 快捷功能卡片 -->
+            <div class="quick-actions">
+                <div class="quick-action-card">
+                    <div class="quick-icon">🚗</div>
+                    <div class="quick-title">我的行程</div>
+                    <div class="quick-subtitle">出行服务</div>
+                </div>
+                <div class="quick-action-card">
+                    <div class="quick-icon">📄</div>
+                    <div class="quick-title">开具发票</div>
+                    <div class="quick-subtitle">发票订单</div>
+                </div>
+            </div>
+            
+            <!-- 功能列表 -->
+            <div class="menu-list">
+                <div class="menu-item">
+                    <div class="menu-icon">🎧</div>
+                    <span class="menu-text">客服中心</span>
+                    <span class="menu-arrow">›</span>
+                </div>
+                <div class="menu-item">
+                    <div class="menu-icon">📋</div>
+                    <span class="menu-text">平台协议与规则</span>
+                    <span class="menu-arrow">›</span>
+                </div>
+                <div class="menu-item">
+                    <div class="menu-icon">📍</div>
+                    <span class="menu-text">常用地址</span>
+                    <span class="menu-arrow">›</span>
+                </div>
+                <div class="menu-item">
+                    <div class="menu-icon">🔒</div>
+                    <span class="menu-text">安全中心</span>
+                    <span class="menu-arrow">›</span>
+                </div>
+                <div class="menu-item">
+                    <div class="menu-icon">💬</div>
+                    <span class="menu-text">意见反馈</span>
+                    <span class="menu-arrow">›</span>
+                </div>
+                <div class="menu-item">
+                    <div class="menu-icon">⚙️</div>
+                    <span class="menu-text">设置</span>
+                    <span class="menu-arrow">›</span>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 底部导航 -->
+        <div class="bottom-nav">
+            <div class="nav-item active" onclick="switchNav('home')">
+                <div class="nav-icon">🏠</div>
+                <div class="nav-label">首页</div>
+            </div>
+            <div class="nav-item" onclick="switchNav('coupon')">
+                <div class="nav-icon">🎫</div>
+                <div class="nav-label">卡券</div>
+            </div>
+            <div class="nav-item" onclick="switchNav('profile')">
+                <div class="nav-icon">👤</div>
+                <div class="nav-label">我的</div>
+            </div>
+        </div>
+        
+        <!-- 等级规则弹窗 -->
+        <div class="modal-overlay" id="levelModal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <span class="modal-title">等级规则</span>
+                    <span class="modal-close" onclick="closeModal()">×</span>
+                </div>
+                <div class="modal-body">
+                    <div class="level-rule-item">
+                        <div class="level-rule-header">
+                            <div class="level-rule-badge level-newbie">🌱</div>
+                            <span class="level-rule-name">萌新会员</span>
+                        </div>
+                        <div class="level-rule-desc">0-100成长值</div>
+                        <ul class="level-rule-list">
+                            <li>完成注册即可获得</li>
+                            <li>有效期3个月</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="level-rule-item">
+                        <div class="level-rule-header">
+                            <div class="level-rule-badge level-silver">🥈</div>
+                            <span class="level-rule-name">白银会员</span>
+                        </div>
+                        <div class="level-rule-desc">101-500成长值</div>
+                        <ul class="level-rule-list">
+                            <li>近30天完成≥3单</li>
+                            <li>无恶意取消记录</li>
+                            <li>有效期3个月</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="level-rule-item">
+                        <div class="level-rule-header">
+                            <div class="level-rule-badge level-gold">👑</div>
+                            <span class="level-rule-name">黄金会员</span>
+                        </div>
+                        <div class="level-rule-desc">501-2000成长值</div>
+                        <ul class="level-rule-list">
+                            <li>近90天完成≥15单</li>
+                            <li>订单评价率≥80%</li>
+                            <li>有效期3个月</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="level-rule-item">
+                        <div class="level-rule-header">
+                            <div class="level-rule-badge level-diamond">💎</div>
+                            <span class="level-rule-name">钻石会员</span>
+                        </div>
+                        <div class="level-rule-desc">2001+成长值</div>
+                        <ul class="level-rule-list">
+                            <li>近180天完成≥60单</li>
+                            <li>平台核心用户</li>
+                            <li>有效期3个月</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="retention-rule">
+                        <div class="retention-title">📋 保级规则</div>
+                        <ul class="retention-list">
+                            <li>会员等级每3个月进行一次评估</li>
+                            <li>评估周期内满足对应等级条件即可保级</li>
+                            <li>黄金及以上会员需保持订单评价率≥80%</li>
+                            <li>无恶意取消订单记录</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="demotion-rule">
+                        <div class="demotion-title">📉 降级规则</div>
+                        <ul class="demotion-list">
+                            <li>评估周期内成长值未达到当前等级要求</li>
+                            <li>3个月内订单完成量不足当前等级标准</li>
+                            <li>恶意取消订单累计超过3次</li>
+                            <li>降级后成长值重新计算，有效期重新开始</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // 滑动相关变量
+        let currentSlide = 2; // 默认显示黄金会员（索引2）
+        const totalSlides = 4;
+        let startX = 0;
+        let endX = 0;
+        
+        // 滑动到指定等级
+        function slideTo(index) {
+            currentSlide = index;
+            updateSlider();
+        }
+        
+        // 更新滑动位置
+        function updateSlider() {
+            const slider = document.querySelector('.level-slider');
+            const indicators = document.querySelectorAll('.indicator');
+            const premiumTasks = document.getElementById('premiumTasks');
+            
+            // 更新滑块位置
+            slider.style.transform = `translateX(-${currentSlide * 100}%)`;
+            
+            // 更新指示器状态
+            indicators.forEach((indicator, index) => {
+                indicator.classList.toggle('active', index === currentSlide);
+            });
+            
+            // 控制高级任务显示：只有黄金会员(索引2)或钻石会员(索引3)才显示
+            if (currentSlide === 2 || currentSlide === 3) {
+                premiumTasks.style.display = 'block';
+            } else {
+                premiumTasks.style.display = 'none';
+            }
+        }
+        
+        // 触摸开始
+        function touchStart(e) {
+            startX = e.touches[0].clientX;
+        }
+        
+        // 触摸结束
+        function touchEnd(e) {
+            endX = e.changedTouches[0].clientX;
+            handleSwipe();
+        }
+        
+        // 处理滑动
+        function handleSwipe() {
+            const threshold = 50;
+            const diff = endX - startX;
+            
+            if (Math.abs(diff) > threshold) {
+                if (diff > 0 && currentSlide > 0) {
+                    currentSlide--;
+                } else if (diff < 0 && currentSlide < totalSlides - 1) {
+                    currentSlide++;
+                }
+                updateSlider();
+            }
+        }
+        
+        // 初始化滑动事件
+        function initSlider() {
+            const slider = document.querySelector('.level-slider');
+            slider.addEventListener('touchstart', touchStart, { passive: true });
+            slider.addEventListener('touchend', touchEnd, { passive: true });
+            
+            // 鼠标拖拽支持（用于桌面预览）
+            let isDragging = false;
+            let dragStartX = 0;
+            
+            slider.addEventListener('mousedown', function(e) {
+                isDragging = true;
+                dragStartX = e.clientX;
+            });
+            
+            slider.addEventListener('mouseup', function(e) {
+                if (isDragging) {
+                    endX = e.clientX;
+                    startX = dragStartX;
+                    handleSwipe();
+                    isDragging = false;
+                }
+            });
+            
+            slider.addEventListener('mousemove', function(e) {
+                if (!isDragging) return;
+                e.preventDefault();
+            });
+        }
+        
+        // 切换标签页
+        function switchTab(tabId) {
+            // 更新标签状态
+            document.querySelectorAll('.tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            event.currentTarget.classList.add('active');
+            
+            // 更新内容显示
+            document.querySelectorAll('.content').forEach(content => {
+                content.classList.remove('active');
+            });
+            document.getElementById(tabId).classList.add('active');
+        }
+        
+        // 打开成长值规则弹窗
+        function openGrowthRuleModal() {
+            document.getElementById('levelModal').classList.add('active');
+        }
+        
+        // 显示成长详情页面
+        function showGrowthDetail() {
+            // 显示头部和标签栏
+            document.getElementById('header').style.display = 'block';
+            document.getElementById('tabs').style.display = 'flex';
+            
+            // 切换到任务中心内容
+            document.querySelectorAll('.content').forEach(content => {
+                content.classList.remove('active');
+            });
+            document.getElementById('tasks').classList.add('active');
+            
+            // 更新导航状态
+            document.querySelectorAll('.nav-item').forEach(item => {
+                item.classList.remove('active');
+            });
+        }
+        
+        // 切换导航页面
+        function switchNav(pageId) {
+            document.querySelectorAll('.nav-item').forEach(item => {
+                item.classList.remove('active');
+            });
+            event.currentTarget.classList.add('active');
+            
+            document.querySelectorAll('.content').forEach(content => {
+                content.classList.remove('active');
+            });
+            document.getElementById(pageId).classList.add('active');
+            
+            // 隐藏/显示头部和标签栏（只有任务中心和成长值明细页面显示）
+            const header = document.getElementById('header');
+            const tabs = document.getElementById('tabs');
+            if (pageId === 'profile' || pageId === 'home' || pageId === 'coupon') {
+                header.style.display = 'none';
+                tabs.style.display = 'none';
+            } else {
+                header.style.display = 'block';
+                tabs.style.display = 'flex';
+            }
+        }
+        
+        // 关闭弹窗
+        function closeModal() {
+            document.getElementById('levelModal').classList.remove('active');
+        }
+        
+        // 关闭首页引导弹窗
+        function closeGuideModal() {
+            document.getElementById('guideModal').style.display = 'none';
+        }
+        
+        // 切换成长值明细TAB
+        function switchGrowthTab(tabId) {
+            document.querySelectorAll('.growth-tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            event.currentTarget.classList.add('active');
+            
+            document.querySelectorAll('.growth-content').forEach(content => {
+                content.classList.remove('active');
+            });
+            document.getElementById(tabId).classList.add('active');
+        }
+        
+        // 计算本季度剩余天数
+        function calculateQuarterDaysRemaining() {
+            const now = new Date();
+            const currentYear = now.getFullYear();
+            const currentMonth = now.getMonth(); // 0-11
+            
+            // 确定当前季度的结束日期
+            let quarterEnd;
+            if (currentMonth < 3) {
+                // Q1: 1-3月
+                quarterEnd = new Date(currentYear, 2, 31);
+            } else if (currentMonth < 6) {
+                // Q2: 4-6月
+                quarterEnd = new Date(currentYear, 5, 30);
+            } else if (currentMonth < 9) {
+                // Q3: 7-9月
+                quarterEnd = new Date(currentYear, 8, 30);
+            } else {
+                // Q4: 10-12月
+                quarterEnd = new Date(currentYear, 11, 31);
+            }
+            
+            // 计算剩余天数
+            const diffTime = quarterEnd.getTime() - now.getTime();
+            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+            
+            // 更新显示
+            document.getElementById('quarterDaysRemaining').textContent = `本季度剩余 ${diffDays} 天`;
+        }
+        
+        // 初始化高德地图
+        function initAMap() {
+            if (typeof AMap !== 'undefined') {
+                var map = new AMap.Map('amap-container', {
+                    center: [116.397428, 39.90923],
+                    zoom: 16,
+                    resizeEnable: true
+                });
+                
+                // 添加当前定位标记（大头针）
+                var currentMarker = new AMap.Marker({
+                    position: [116.397428, 39.90923],
+                    icon: new AMap.Icon({
+                        image: 'https://webapi.amap.com/theme/v1.3/markers/n/mark_b.png',
+                        size: new AMap.Size(36, 36),
+                        anchor: new AMap.Pixel(18, 36)
+                    }),
+                    title: '当前位置'
+                });
+                map.add(currentMarker);
+                
+                // 创建信息窗口显示地址
+                var infoWindow = new AMap.InfoWindow({
+                    content: '<div style="padding: 8px 12px; font-size: 14px; font-weight: 500;">📍 当前位置：花溪国际中心D座（西门）</div>',
+                    offset: new AMap.Pixel(0, -10)
+                });
+                infoWindow.open(map, [116.397428, 39.90923]);
+                
+                // 添加汽车标记
+                var carMarker1 = new AMap.Marker({
+                    position: [116.396428, 39.90823],
+                    icon: new AMap.Icon({
+                        image: 'https://webapi.amap.com/theme/v1.3/markers/b/03_lbs.png',
+                        size: new AMap.Size(32, 32),
+                        anchor: new AMap.Pixel(16, 16)
+                    }),
+                    title: '可用车辆'
+                });
+                map.add(carMarker1);
+                
+                var carMarker2 = new AMap.Marker({
+                    position: [116.398428, 39.91023],
+                    icon: new AMap.Icon({
+                        image: 'https://webapi.amap.com/theme/v1.3/markers/b/03_lbs.png',
+                        size: new AMap.Size(32, 32),
+                        anchor: new AMap.Pixel(16, 16)
+                    }),
+                    title: '可用车辆'
+                });
+                map.add(carMarker2);
+                
+                var carMarker3 = new AMap.Marker({
+                    position: [116.395428, 39.91123],
+                    icon: new AMap.Icon({
+                        image: 'https://webapi.amap.com/theme/v1.3/markers/b/03_lbs.png',
+                        size: new AMap.Size(32, 32),
+                        anchor: new AMap.Pixel(16, 16)
+                    }),
+                    title: '可用车辆'
+                });
+                map.add(carMarker3);
+                
+                map.addControl(new AMap.Scale());
+                map.addControl(new AMap.ToolBar());
+            }
+        }
+        
+        // 初始化
+        window.onload = function() {
+            initSlider();
+            updateSlider();
+            calculateQuarterDaysRemaining();
+            initAMap();
+            
+            // 默认显示首页
+            document.getElementById('header').style.display = 'none';
+            document.getElementById('tabs').style.display = 'none';
+            document.querySelectorAll('.content').forEach(content => {
+                content.classList.remove('active');
+            });
+            document.getElementById('home').classList.add('active');
+            document.querySelectorAll('.nav-item').forEach(item => {
+                item.classList.remove('active');
+            });
+            document.querySelector('.nav-item:first-child').classList.add('active');
+        };
+    </script>
+</body>
+</html>

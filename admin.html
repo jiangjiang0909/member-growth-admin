@@ -1,0 +1,602 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>管理后台 - 抽佣比例设置</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f5f5f5;
+            color: #333;
+            line-height: 1.6;
+        }
+        
+        .container {
+            display: flex;
+            min-height: 100vh;
+        }
+        
+        /* 侧边栏 */
+        .sidebar {
+            width: 250px;
+            background-color: #2c3e50;
+            color: white;
+            padding: 20px 0;
+        }
+        
+        .sidebar-header {
+            padding: 0 20px 20px;
+            border-bottom: 1px solid #34495e;
+        }
+        
+        .sidebar-header h1 {
+            font-size: 18px;
+            font-weight: bold;
+        }
+        
+        .sidebar-menu {
+            margin-top: 20px;
+        }
+        
+        .menu-item {
+            padding: 12px 20px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        
+        .menu-item:hover {
+            background-color: #34495e;
+        }
+        
+        .menu-item.active {
+            background-color: #3498db;
+        }
+        
+        /* 主内容区 */
+        .main-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        /* 顶部导航栏 */
+        .top-nav {
+            background-color: white;
+            padding: 15px 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .top-nav h2 {
+            font-size: 18px;
+            font-weight: bold;
+            color: #2c3e50;
+        }
+        
+        .user-info {
+            display: flex;
+            align-items: center;
+        }
+        
+        .user-avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background-color: #3498db;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            margin-right: 10px;
+        }
+        
+        /* 内容区域 */
+        .content {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+        }
+        
+        /* 卡片样式 */
+        .card {
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        
+        .card-header {
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .card-header h3 {
+            font-size: 16px;
+            font-weight: bold;
+            color: #2c3e50;
+        }
+        
+        /* 表单样式 */
+        .form-group {
+            margin-bottom: 15px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-size: 14px;
+            color: #555;
+            font-weight: 500;
+        }
+        
+        .form-group input,
+        .form-group select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+        
+        .form-group input:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: #3498db;
+        }
+        
+        /* 按钮样式 */
+        .btn {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 4px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        
+        .btn-primary {
+            background-color: #3498db;
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background-color: #2980b9;
+        }
+        
+        .btn-secondary {
+            background-color: #95a5a6;
+            color: white;
+            margin-right: 10px;
+        }
+        
+        .btn-secondary:hover {
+            background-color: #7f8c8d;
+        }
+        
+        /* 抽佣类型切换 */
+        .commission-type-toggle {
+            display: flex;
+            margin-bottom: 20px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+        
+        .toggle-item {
+            flex: 1;
+            padding: 10px;
+            text-align: center;
+            cursor: pointer;
+            background-color: #f8f9fa;
+            transition: all 0.3s;
+        }
+        
+        .toggle-item.active {
+            background-color: #3498db;
+            color: white;
+        }
+        
+        /* 阶梯抽佣表格 */
+        .tier-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+        
+        .tier-table th,
+        .tier-table td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .tier-table th {
+            background-color: #f8f9fa;
+            font-weight: 600;
+            color: #2c3e50;
+        }
+        
+        .tier-table tr:hover {
+            background-color: #f8f9fa;
+        }
+        
+        .tier-actions {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .btn-sm {
+            padding: 4px 8px;
+            font-size: 12px;
+        }
+        
+        .btn-success {
+            background-color: #27ae60;
+            color: white;
+        }
+        
+        .btn-success:hover {
+            background-color: #219a52;
+        }
+        
+        .btn-danger {
+            background-color: #e74c3c;
+            color: white;
+        }
+        
+        .btn-danger:hover {
+            background-color: #c0392b;
+        }
+        
+        /* 阶梯规则表单 */
+        .tier-form {
+            background-color: #f8f9fa;
+            padding: 20px;
+            border-radius: 4px;
+            margin-bottom: 20px;
+        }
+        
+        .tier-form .form-row {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+        
+        /* 底部 */
+        .footer {
+            background-color: white;
+            padding: 15px 20px;
+            border-top: 1px solid #eee;
+            text-align: center;
+            font-size: 14px;
+            color: #7f8c8d;
+        }
+        
+        /* 响应式设计 */
+        @media (max-width: 768px) {
+            .sidebar {
+                width: 200px;
+            }
+            
+            .tier-form .form-row {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- 侧边栏 -->
+        <div class="sidebar">
+            <div class="sidebar-header">
+                <h1>管理后台</h1>
+            </div>
+            <div class="sidebar-menu">
+                <div class="menu-item">
+                    仪表盘
+                </div>
+                <div class="menu-item active">
+                    抽佣设置
+                </div>
+                <div class="menu-item">
+                    订单管理
+                </div>
+                <div class="menu-item">
+                    用户管理
+                </div>
+                <div class="menu-item">
+                    数据统计
+                </div>
+                <div class="menu-item">
+                    系统设置
+                </div>
+            </div>
+        </div>
+        
+        <!-- 主内容区 -->
+        <div class="main-content">
+            <!-- 顶部导航栏 -->
+            <div class="top-nav">
+                <h2>抽佣比例设置</h2>
+                <div class="user-info">
+                    <div class="user-avatar">A</div>
+                    <span>管理员</span>
+                </div>
+            </div>
+            
+            <!-- 内容区域 -->
+            <div class="content">
+                <!-- 抽佣设置卡片 -->
+                <div class="card">
+                    <div class="card-header">
+                        <h3>抽佣比例配置</h3>
+                    </div>
+                    
+                    <!-- 抽佣类型切换 -->
+                    <div class="commission-type-toggle">
+                        <div class="toggle-item active" onclick="switchCommissionType('fixed')">
+                            固定抽佣比例
+                        </div>
+                        <div class="toggle-item" onclick="switchCommissionType('tier')">
+                            阶梯抽佣比例
+                        </div>
+                    </div>
+                    
+                    <!-- 固定抽佣设置 -->
+                    <div id="fixed-commission" class="commission-type-content">
+                        <div class="form-group">
+                            <label for="fixedRate">固定抽佣比例 (%)</label>
+                            <input type="number" id="fixedRate" value="5" min="0" max="100" step="0.1">
+                        </div>
+                        <div class="form-group">
+                            <label for="fixedMinAmount">最低抽佣金额</label>
+                            <input type="number" id="fixedMinAmount" value="0" min="0" step="0.01">
+                        </div>
+                        <div class="form-group">
+                            <label for="fixedMaxAmount">最高抽佣金额</label>
+                            <input type="number" id="fixedMaxAmount" value="0" min="0" step="0.01" placeholder="0表示无上限">
+                        </div>
+                    </div>
+                    
+                    <!-- 阶梯抽佣设置 -->
+                    <div id="tier-commission" class="commission-type-content" style="display: none;">
+                        <div class="tier-form">
+                            <h4>添加阶梯规则</h4>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="tierMin">最低金额</label>
+                                    <input type="number" id="tierMin" placeholder="0" min="0" step="0.01">
+                                </div>
+                                <div class="form-group">
+                                    <label for="tierMax">最高金额</label>
+                                    <input type="number" id="tierMax" placeholder="99999999" min="0" step="0.01">
+                                </div>
+                                <div class="form-group">
+                                    <label for="tierRate">抽佣比例 (%)</label>
+                                    <input type="number" id="tierRate" placeholder="0" min="0" max="100" step="0.1">
+                                </div>
+                            </div>
+                            <button class="btn btn-primary" onclick="addTierRule()">添加规则</button>
+                        </div>
+                        
+                        <!-- 阶梯规则表格 -->
+                        <table class="tier-table">
+                            <thead>
+                                <tr>
+                                    <th>序号</th>
+                                    <th>金额范围</th>
+                                    <th>抽佣比例</th>
+                                    <th>操作</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tierTableBody">
+                                <!-- 示例数据 -->
+                                <tr>
+                                    <td>1</td>
+                                    <td>0 - 1000</td>
+                                    <td>5%</td>
+                                    <td class="tier-actions">
+                                        <button class="btn btn-sm btn-success" onclick="editTierRule(0)">编辑</button>
+                                        <button class="btn btn-sm btn-danger" onclick="deleteTierRule(0)">删除</button>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>2</td>
+                                    <td>1000 - 5000</td>
+                                    <td>4%</td>
+                                    <td class="tier-actions">
+                                        <button class="btn btn-sm btn-success" onclick="editTierRule(1)">编辑</button>
+                                        <button class="btn btn-sm btn-danger" onclick="deleteTierRule(1)">删除</button>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>3</td>
+                                    <td>5000+</td>
+                                    <td>3%</td>
+                                    <td class="tier-actions">
+                                        <button class="btn btn-sm btn-success" onclick="editTierRule(2)">编辑</button>
+                                        <button class="btn btn-sm btn-danger" onclick="deleteTierRule(2)">删除</button>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    
+                    <!-- 保存按钮 -->
+                    <div style="margin-top: 20px;">
+                        <button class="btn btn-secondary">取消</button>
+                        <button class="btn btn-primary" onclick="saveCommissionSettings()">保存设置</button>
+                    </div>
+                </div>
+                
+                <!-- 抽佣规则说明卡片 -->
+                <div class="card">
+                    <div class="card-header">
+                        <h3>抽佣规则说明</h3>
+                    </div>
+                    <div style="line-height: 1.8;">
+                        <p><strong>固定抽佣比例：</strong>对所有订单使用统一的抽佣比例，可设置最低和最高抽佣金额。</p>
+                        <p><strong>阶梯抽佣比例：</strong>根据订单金额的不同区间，应用不同的抽佣比例。</p>
+                        <p><strong>计算方式：</strong>抽佣金额 = 订单金额 × 抽佣比例，若设置了最低/最高抽佣金额，则取计算结果与限制值的交集。</p>
+                        <p><strong>注意事项：</strong></p>
+                        <ul style="margin-left: 20px;">
+                            <li>阶梯规则按金额从小到大排序</li>
+                            <li>金额区间不能重叠</li>
+                            <li>最后一个规则的最高金额应为较大值，表示无上限</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 底部 -->
+            <div class="footer">
+                © 2026 管理后台系统 | 版本 1.0.0
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // 阶梯规则数据
+        let tierRules = [
+            { min: 0, max: 1000, rate: 5 },
+            { min: 1000, max: 5000, rate: 4 },
+            { min: 5000, max: 99999999, rate: 3 }
+        ];
+        
+        // 当前编辑的规则索引
+        let currentEditIndex = -1;
+        
+        // 切换抽佣类型
+        function switchCommissionType(type) {
+            // 更新切换按钮状态
+            document.querySelectorAll('.toggle-item').forEach(item => {
+                item.classList.remove('active');
+            });
+            event.currentTarget.classList.add('active');
+            
+            // 显示/隐藏对应内容
+            if (type === 'fixed') {
+                document.getElementById('fixed-commission').style.display = 'block';
+                document.getElementById('tier-commission').style.display = 'none';
+            } else {
+                document.getElementById('fixed-commission').style.display = 'none';
+                document.getElementById('tier-commission').style.display = 'block';
+            }
+        }
+        
+        // 添加阶梯规则
+        function addTierRule() {
+            const min = parseFloat(document.getElementById('tierMin').value) || 0;
+            const max = parseFloat(document.getElementById('tierMax').value) || 99999999;
+            const rate = parseFloat(document.getElementById('tierRate').value) || 0;
+            
+            if (currentEditIndex === -1) {
+                // 添加新规则
+                tierRules.push({ min, max, rate });
+            } else {
+                // 编辑现有规则
+                tierRules[currentEditIndex] = { min, max, rate };
+                currentEditIndex = -1;
+            }
+            
+            // 排序规则
+            tierRules.sort((a, b) => a.min - b.min);
+            
+            // 更新表格
+            updateTierTable();
+            
+            // 清空表单
+            document.getElementById('tierMin').value = '';
+            document.getElementById('tierMax').value = '';
+            document.getElementById('tierRate').value = '';
+        }
+        
+        // 编辑阶梯规则
+        function editTierRule(index) {
+            const rule = tierRules[index];
+            document.getElementById('tierMin').value = rule.min;
+            document.getElementById('tierMax').value = rule.max;
+            document.getElementById('tierRate').value = rule.rate;
+            currentEditIndex = index;
+        }
+        
+        // 删除阶梯规则
+        function deleteTierRule(index) {
+            if (confirm('确定要删除这条规则吗？')) {
+                tierRules.splice(index, 1);
+                updateTierTable();
+            }
+        }
+        
+        // 更新阶梯规则表格
+        function updateTierTable() {
+            const tbody = document.getElementById('tierTableBody');
+            tbody.innerHTML = '';
+            
+            tierRules.forEach((rule, index) => {
+                const tr = document.createElement('tr');
+                const rangeText = rule.max === 99999999 ? `${rule.min}+` : `${rule.min} - ${rule.max}`;
+                
+                tr.innerHTML = `
+                    <td>${index + 1}</td>
+                    <td>${rangeText}</td>
+                    <td>${rule.rate}%</td>
+                    <td class="tier-actions">
+                        <button class="btn btn-sm btn-success" onclick="editTierRule(${index})">编辑</button>
+                        <button class="btn btn-sm btn-danger" onclick="deleteTierRule(${index})">删除</button>
+                    </td>
+                `;
+                
+                tbody.appendChild(tr);
+            });
+        }
+        
+        // 保存抽佣设置
+        function saveCommissionSettings() {
+            // 获取当前选中的抽佣类型
+            const activeType = document.querySelector('.toggle-item.active').textContent.trim() === '固定抽佣比例' ? 'fixed' : 'tier';
+            
+            let settings = {};
+            
+            if (activeType === 'fixed') {
+                settings = {
+                    type: 'fixed',
+                    rate: parseFloat(document.getElementById('fixedRate').value),
+                    minAmount: parseFloat(document.getElementById('fixedMinAmount').value),
+                    maxAmount: parseFloat(document.getElementById('fixedMaxAmount').value)
+                };
+            } else {
+                settings = {
+                    type: 'tier',
+                    rules: tierRules
+                };
+            }
+            
+            // 模拟保存操作
+            console.log('保存抽佣设置:', settings);
+            alert('抽佣设置已保存成功！');
+        }
+        
+        // 初始化
+        function init() {
+            updateTierTable();
+        }
+        
+        // 页面加载完成后初始化
+        window.onload = init;
+    </script>
+</body>
+</html>
